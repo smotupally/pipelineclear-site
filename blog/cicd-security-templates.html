@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building org-wide, self-service security pipelines with reusable Harness templates — PipelineClear</title>
+<meta name="description" content="How we replaced inconsistent, team-by-team CI/CD security with versioned, account-level Harness templates that every pipeline inherits automatically.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a class="brand" href="/">Pipeline<span class="dot">Clear</span></a>
+  <nav class="site-nav">
+    <a href="/#about">About</a>
+    <a href="/blog/">Writing</a>
+    <a href="mailto:you@pipelineclear.com">Contact</a>
+  </nav>
+</header>
+
+<article class="article">
+  <a class="back" href="/blog/">← Writing</a>
+  <p class="meta">2026 · CI/CD security</p>
+  <h1>Building org-wide, self-service security pipelines with reusable Harness templates</h1>
+
+  <div class="callout">Editorial note: the metrics below are placeholders — replace with your real figures (rollout time, coverage %, incidents prevented) before publishing.</div>
+
+  <h2>The problem</h2>
+  <p>A year ago, our CI/CD security posture looked like most growing engineering orgs': inconsistent. Every team owned its own pipeline, and security controls — dependency scanning, secret detection, SAST, image scanning — were either bolted on ad hoc, copy-pasted from whichever team had last dealt with an audit finding, or missing entirely. Some pipelines ran Trivy. Others didn't scan container images at all. Secrets management practices varied wildly from team to team, and enforcing even a baseline policy meant chasing down dozens of pipeline owners individually.</p>
+  <p>The result was predictable: security findings that should have been caught in minutes were surfacing in later-stage reviews or audits, engineers were duplicating the same scanning logic across pipelines with slightly different (and often outdated) configurations, and there was no single place to push a fix when a new CVE or policy requirement came down. When a new scanning requirement landed, rolling it out meant manually touching every pipeline across every team — a process that never actually reached full coverage.</p>
+
+  <h2>Why ad hoc fixes weren't enough</h2>
+  <p>Our first instinct was the obvious one: write documentation, share example YAML, ask teams to adopt it. That failed the way it usually does. Docs went stale. Teams copied a snapshot of a pipeline config and never pulled updates. Enforcement was voluntary, so coverage was inconsistent, and every security fix had to be manually re-propagated to every consumer. We needed the fix to live in one place and update everywhere automatically — which meant we needed a platform-level primitive, not a wiki page.</p>
+
+  <h2>The solution: account-level reusable security templates</h2>
+  <p>We rebuilt our security tooling as a set of <strong>account-level (org-wide) Harness CI/CD templates</strong> — versioned, centrally maintained pipeline building blocks that any team could pull into their own pipeline with a few lines of configuration, rather than hand-rolling scanning logic themselves.</p>
+  <p>Each template encapsulated one security control as a reusable step or stage:</p>
+  <ul>
+    <li><strong>Secret scanning</strong> (Gitleaks) — runs on every push, gated to block merges on verified secret exposure</li>
+    <li><strong>SAST</strong> — static analysis wired to fail builds on critical/high findings above an agreed threshold, tuned over time to keep false positives manageable</li>
+    <li><strong>Dependency/SCA scanning</strong> — flags vulnerable dependencies and, where relevant, kicks off SBOM generation</li>
+    <li><strong>Container image scanning</strong> (Trivy) — scans built images before they're allowed to push to the registry</li>
+  </ul>
+  <p>Teams consume these templates the same way they'd use any shared library: reference the template version, pass a handful of parameters (severity thresholds, exclusions, notification targets), and get the full control without writing or maintaining the underlying logic themselves. The majority of our pipelines run on GitHub Actions and Harness CI/CD, with the rest on Azure DevOps for specific tracking and logging workflows — so we designed the templates to be portable in principle, keeping the enforcement logic decoupled from any one platform's quirks.</p>
+  <p>Critically, this isn't a "set it and forget it" library. We treat the template set as a living, contribution-driven system: when a new vulnerability class needs coverage, a scanning tool gets upgraded, or an audit surfaces a gap, the fix goes into the shared template once and every consuming pipeline inherits it on its next run. Engineers across the org regularly contribute enhancements back — new checks, tuned thresholds, support for a new artifact type — the same way you'd contribute to an internal open-source project.</p>
+
+  <h2>Results</h2>
+  <ul>
+    <li>Manual pipeline security work dropped dramatically — what used to require touching every team's pipeline individually to roll out a new control now happens in one template update.</li>
+    <li>Time-to-rollout for a new security requirement went from weeks to days, in some cases hours, since propagation is automatic for any pipeline referencing the shared template.</li>
+    <li>Coverage became consistent org-wide instead of dependent on which team happened to prioritize it — every pipeline built on the templates gets the same baseline controls by default, not by request.</li>
+    <li>Audit prep time shrank significantly, since we can point to a single, versioned source of truth for what security controls are enforced, rather than reconstructing per-team configurations.</li>
+  </ul>
+
+  <h2>Lessons learned</h2>
+  <ul>
+    <li><strong>Centralizing logic beats centralizing mandates.</strong> Asking teams to comply with a policy is weaker than giving them a default that's easier to adopt than to avoid.</li>
+    <li><strong>Versioning matters as much as the controls themselves.</strong> Teams need the confidence to pin a version and upgrade on their own schedule, or adoption stalls.</li>
+    <li><strong>Treat the template set as a product, not a policy doc.</strong> Regular contributions, a changelog, and an easy path for teams to request or add new checks kept engagement high and prevented the templates from going stale the way our original documentation did.</li>
+    <li><strong>Start with the highest-leverage control, not the most controls.</strong> Secret scanning was our first template because it had the clearest, least controversial value — that early win built the trust needed to expand into SAST and image scanning later.</li>
+  </ul>
+
+  <h2>What's next</h2>
+  <p>We're extending the template set to cover policy-as-code enforcement (OPA/Conftest-style checks) and working on making the templates genuinely platform-agnostic, so the same control logic can be consumed identically whether a team is on Harness, GitHub Actions, or Azure DevOps.</p>
+
+  <hr>
+  <p>If you're standardizing CI/CD security across a multi-team org, I'd love to hear how you approached it — <a href="mailto:you@pipelineclear.com">get in touch</a>.</p>
+</article>
+
+<footer class="site-footer">
+  <span>PipelineClear</span>
+  <span><a href="/blog/">More writing</a></span>
+</footer>
+
+</body>
+</html>
