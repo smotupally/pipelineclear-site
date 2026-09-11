@@ -94,7 +94,19 @@
 <footer class="site-footer">
   <span>Somesh Motupally · PipelineClear</span>
   <span><a href="/blog/">More writing</a></span>
+  <span class="visit-counter"></span>
 </footer>
 
+
+<script>
+  var t = setInterval(function() {
+    if (window.goatcounter && window.goatcounter.visit_count) {
+      clearInterval(t)
+      window.goatcounter.visit_count({append: '.visit-counter', type: 'html', no_branding: true})
+    }
+  }, 100)
+</script>
+<script data-goatcounter="https://someshmotupally.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
