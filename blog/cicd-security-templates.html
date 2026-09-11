@@ -27,8 +27,6 @@
   <p class="meta">2026 · CI/CD security · By Somesh Motupally</p>
   <h1>Building org-wide, self-service security pipelines with reusable Harness templates</h1>
 
-  <div class="callout">Editorial note: the metrics below are placeholders — replace with your real figures (rollout time, coverage %, incidents prevented) before publishing.</div>
-
   <h2>The problem</h2>
   <p>A year ago, our CI/CD security posture looked like most growing engineering orgs': inconsistent. Every team owned its own pipeline, and security controls — dependency scanning, secret detection, SAST, image scanning — were either bolted on ad hoc, copy-pasted from whichever team had last dealt with an audit finding, or missing entirely. Some pipelines ran Trivy. Others didn't scan container images at all. Secrets management practices varied wildly from team to team, and enforcing even a baseline policy meant chasing down dozens of pipeline owners individually.</p>
   <p>The result was predictable: security findings that should have been caught in minutes were surfacing in later-stage reviews or audits, engineers were duplicating the same scanning logic across pipelines with slightly different (and often outdated) configurations, and there was no single place to push a fix when a new CVE or policy requirement came down. When a new scanning requirement landed, rolling it out meant manually touching every pipeline across every team — a process that never actually reached full coverage.</p>

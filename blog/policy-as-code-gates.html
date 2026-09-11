@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Policy-as-Code Gates: Blocking Bad Deploys Before They Ship — PipelineClear</title>
+<meta name="description" content="How we used OPA and Kyverno to turn security policy from a document nobody read into an automatic gate that blocks non-compliant deploys.">
+<meta name="author" content="Somesh Motupally">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a class="brand" href="/">Pipeline<span class="dot">Clear</span></a>
+  <nav class="site-nav">
+    <a href="/#about">About</a>
+    <a href="/blog/">Writing</a>
+    <a href="mailto:hello@pipelineclear.com">Contact</a>
+  </nav>
+</header>
+
+<article class="article">
+  <a class="back" href="/blog/">← Writing</a>
+  <p class="meta">2026 · CI/CD security · By Somesh Motupally</p>
+  <h1>Policy-as-Code Gates: Blocking Bad Deploys Before They Ship</h1>
+
+  <h2>The problem</h2>
+  <p>Security policy at most organizations lives in a document. "Containers must not run as root." "Images must come from an approved registry." "No privileged containers in production." These rules get written once, reviewed in an audit, and then quietly ignored — because nothing in the deployment path actually checks for them. A misconfigured manifest that violates every rule in the document will deploy exactly as successfully as one that follows all of them.</p>
+  <p>We hit this directly: a security review found containers running as root, some with privileged access they didn't need, and images pulled from registries nobody had explicitly approved. None of this was malicious — it was just what happens when policy exists as prose instead of as something the pipeline actually enforces. By the time these findings surfaced, the workloads were already live.</p>
+
+  <h2>Why manual review wasn't enough</h2>
+  <p>The instinctive fix — add a manual security review step before production deploys — didn't scale and didn't match how the org actually shipped software. Reviewers became a bottleneck, review quality varied by who was on call, and the whole model depended on a human catching a YAML misconfiguration by eye, every time, under time pressure. We needed the check to happen automatically, consistently, and early enough that failing it was cheap — a rejected pull request, not an incident report.</p>
+
+  <h2>The solution: policy gates with OPA and Kyverno</h2>
+  <p>We built a layered policy enforcement setup using <strong>Open Policy Agent (OPA)</strong> for CI-time checks against Infrastructure-as-Code, and <strong>Kyverno</strong> as an admission controller enforcing the same intent at the Kubernetes cluster level — so a violation is caught whichever way it tries to reach production.</p>
+
+  <p>The policies we enforced were deliberately the highest-leverage ones first:</p>
+  <ul>
+    <li><strong>No privileged containers</strong> — blocks any pod spec requesting privileged mode or unnecessary host access</li>
+    <li><strong>Non-root enforcement</strong> — rejects containers that don't explicitly set a non-root user</li>
+    <li><strong>Approved registry only</strong> — images must originate from our internal or explicitly allow-listed registries; anything else is rejected at admission</li>
+    <li><strong>Signed image verification</strong> — using Sigstore/cosign, Kyverno verifies image signatures at admission time, so an unsigned or tampered image simply cannot run, regardless of how it got built</li>
+    <li><strong>Mandatory resource limits</strong> — no container without CPU/memory limits defined, closing off a whole class of noisy-neighbor and cost issues alongside the security angle</li>
+  </ul>
+
+  <p>OPA runs earlier — against Terraform plans and Kubernetes manifests in CI, using Conftest — so violations get caught in a pull request with a clear, specific failure message before anything is ever applied. Kyverno acts as the backstop at the cluster's admission controller, so even a change that bypasses CI (a manual <code>kubectl apply</code>, a hotfix, a misconfigured pipeline elsewhere) still can't land a non-compliant workload. Neither layer alone was sufficient; together they close the gap between "policy that's written" and "policy that's actually true in production."</p>
+
+  <h2>Results</h2>
+  <ul>
+    <li>Non-compliant manifests started getting rejected automatically at the PR stage, with the specific rule and reason surfaced directly to the engineer — no waiting on a reviewer's availability.</li>
+    <li>Privileged and root-running containers in production dropped to effectively zero going forward, since the admission controller makes them structurally impossible to deploy, not just discouraged.</li>
+    <li>Unsigned or unverified images became unable to run in the cluster at all, closing a real supply-chain gap rather than relying on trust in the build pipeline alone.</li>
+    <li>Security review shifted from "find problems after the fact" to "maintain and extend the policy set" — a meaningfully different, more scalable use of the same team's time.</li>
+  </ul>
+
+  <h2>Lessons learned</h2>
+  <ul>
+    <li><strong>Enforce at more than one layer.</strong> CI-time checks are fast feedback for developers; admission-time checks are the actual guarantee. Relying on either alone leaves a gap someone will eventually find.</li>
+    <li><strong>Start with rules nobody can reasonably argue with.</strong> "No privileged containers" and "must run as non-root" are hard to object to, which built trust in the gate before we introduced anything more opinionated.</li>
+    <li><strong>Error messages are part of the policy.</strong> A rejected deploy with a vague "denied by policy" message trains people to route around the gate. A rejection that names the exact rule and the exact fix keeps the gate credible.</li>
+    <li><strong>Image signing was the highest-value, latest addition.</strong> It directly answers "how do we know this image is what we think it is," which matters more every year as supply-chain attacks keep growing in frequency and sophistication.</li>
+    <li><strong>A gate without an exception path gets bypassed.</strong> We built a narrow, logged, time-boxed override process for legitimate edge cases — without it, people find ways around policy instead of through it.</li>
+  </ul>
+
+  <h2>What's next</h2>
+  <p>We're extending the policy set to cover network policy enforcement (default-deny with explicit allow rules) and tightening the signature verification requirement to include provenance attestation (SLSA-style build provenance), not just a valid signature — moving from "this image wasn't tampered with" to "this image was built by the pipeline we expect, from the source we expect."</p>
+
+  <hr>
+  <p>If you're building out policy-as-code enforcement with OPA, Kyverno, or a similar stack, I'd like to hear how you're approaching exception handling — <a href="mailto:hello@pipelineclear.com">get in touch</a>.</p>
+</article>
+
+<footer class="site-footer">
+  <span>Somesh Motupally · PipelineClear</span>
+  <span><a href="/blog/">More writing</a></span>
+</footer>
+
+</body>
+</html>
