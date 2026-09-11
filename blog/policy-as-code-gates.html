@@ -6,10 +6,24 @@
 <title>Policy-as-Code Gates: Blocking Bad Deploys Before They Ship — PipelineClear</title>
 <meta name="description" content="How we used OPA and Kyverno to turn security policy from a document nobody read into an automatic gate that blocks non-compliant deploys.">
 <meta name="author" content="Somesh Motupally">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Policy-as-Code Gates: Blocking Bad Deploys Before They Ship">
+<meta property="og:description" content="How we used OPA and Kyverno to turn security policy from a document nobody read into an automatic gate that blocks non-compliant deploys.">
+<meta property="og:url" content="https://pipelineclear.com/blog/policy-as-code-gates.html">
+<meta property="og:image" content="https://pipelineclear.com/og-image.png">
+<meta property="article:author" content="Somesh Motupally">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Policy-as-Code Gates: Blocking Bad Deploys Before They Ship">
+<meta name="twitter:description" content="How we used OPA and Kyverno to turn security policy from a document nobody read into an automatic gate that blocks non-compliant deploys.">
+<meta name="twitter:image" content="https://pipelineclear.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -25,8 +39,14 @@
 
 <article class="article">
   <a class="back" href="/blog/">← Writing</a>
-  <p class="meta">2026 · CI/CD security · By Somesh Motupally</p>
+  <p class="meta">2026 · By Somesh Motupally · 4 min read</p>
   <h1>Policy-as-Code Gates: Blocking Bad Deploys Before They Ship</h1>
+  <div class="tags">
+    <span class="tag">Kubernetes</span>
+    <span class="tag">OPA</span>
+    <span class="tag">Kyverno</span>
+    <span class="tag">Supply Chain Security</span>
+  </div>
 
   <h2>The problem</h2>
   <p>Security policy at most organizations lives in a document. "Containers must not run as root." "Images must come from an approved registry." "No privileged containers in production." These rules get written once, reviewed in an audit, and then quietly ignored — because nothing in the deployment path actually checks for them. A misconfigured manifest that violates every rule in the document will deploy exactly as successfully as one that follows all of them.</p>

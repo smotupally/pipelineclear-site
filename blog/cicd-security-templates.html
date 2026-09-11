@@ -6,10 +6,24 @@
 <title>Building org-wide, self-service security pipelines with reusable Harness templates — PipelineClear</title>
 <meta name="description" content="How we replaced inconsistent, team-by-team CI/CD security with versioned, account-level Harness templates that every pipeline inherits automatically.">
 <meta name="author" content="Somesh Motupally">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Building org-wide, self-service security pipelines with reusable Harness templates">
+<meta property="og:description" content="How we replaced inconsistent, team-by-team CI/CD security with versioned, account-level Harness templates that every pipeline inherits automatically.">
+<meta property="og:url" content="https://pipelineclear.com/blog/cicd-security-templates.html">
+<meta property="og:image" content="https://pipelineclear.com/og-image.png">
+<meta property="article:author" content="Somesh Motupally">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Building org-wide, self-service security pipelines with reusable Harness templates">
+<meta name="twitter:description" content="How we replaced inconsistent, team-by-team CI/CD security with versioned, account-level Harness templates that every pipeline inherits automatically.">
+<meta name="twitter:image" content="https://pipelineclear.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -25,8 +39,14 @@
 
 <article class="article">
   <a class="back" href="/blog/">← Writing</a>
-  <p class="meta">2026 · CI/CD security · By Somesh Motupally</p>
+  <p class="meta">2026 · By Somesh Motupally · 4 min read</p>
   <h1>Building org-wide, self-service security pipelines with reusable Harness templates</h1>
+  <div class="tags">
+    <span class="tag">CI/CD</span>
+    <span class="tag">Harness</span>
+    <span class="tag">Platform Engineering</span>
+    <span class="tag">Secret Scanning</span>
+  </div>
 
   <h2>The problem</h2>
   <p>A year ago, our CI/CD security posture looked like most growing engineering orgs': inconsistent. Every team owned its own pipeline, and security controls — dependency scanning, secret detection, SAST, image scanning — were either bolted on ad hoc, copy-pasted from whichever team had last dealt with an audit finding, or missing entirely. Some pipelines ran Trivy. Others didn't scan container images at all. Secrets management practices varied wildly from team to team, and enforcing even a baseline policy meant chasing down dozens of pipeline owners individually.</p>

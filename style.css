@@ -225,7 +225,28 @@ code, .mono {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.82rem;
   color: var(--ink-muted);
-  margin: 24px 0 6px;
+  margin: 24px 0 14px;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 28px;
+}
+
+.tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.76rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+
+.post-item .tags {
+  margin: 10px 0 10px;
 }
 
 .article h1 { font-size: clamp(1.8rem, 3.5vw, 2.4rem); margin: 0 0 8px; }
