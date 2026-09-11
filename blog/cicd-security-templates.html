@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -26,8 +27,6 @@
   <a class="back" href="/blog/">← Writing</a>
   <p class="meta">2026 · CI/CD security · By Somesh Motupally</p>
   <h1>Building org-wide, self-service security pipelines with reusable Harness templates</h1>
-
-  <div class="callout">Editorial note: the metrics below are placeholders — replace with your real figures (rollout time, coverage %, incidents prevented) before publishing.</div>
 
   <h2>The problem</h2>
   <p>A year ago, our CI/CD security posture looked like most growing engineering orgs': inconsistent. Every team owned its own pipeline, and security controls — dependency scanning, secret detection, SAST, image scanning — were either bolted on ad hoc, copy-pasted from whichever team had last dealt with an audit finding, or missing entirely. Some pipelines ran Trivy. Others didn't scan container images at all. Secrets management practices varied wildly from team to team, and enforcing even a baseline policy meant chasing down dozens of pipeline owners individually.</p>
